@@ -25,7 +25,8 @@ extern "C" {
 // Pin Definitions //
 /////////////////////
 const int LED_PIN = 5; // Thing's onboard, green LED - LOW turns on the LED
-const int LDR_PIN = 4;
+const int LDR_PIN = 12;
+const int BUZZER_PIN = 14;
 
 /////////////////
 // Post Timing //
@@ -80,6 +81,10 @@ void loop()
   // post to IFTTT
   postToIFTTT();
 
+  analogWriteFreq(400);
+  analogWrite(BUZZER_PIN, 128);
+  delay(3000);
+  analogWrite(BUZZER_PIN, 0);
 }
 
 void connectWiFi()
@@ -127,6 +132,8 @@ void initHardware()
   digitalWrite(LED_PIN, HIGH);
 
   pinMode(LDR_PIN, INPUT);
+
+  pinMode(BUZZER_PIN, OUTPUT);
 }
 
 char MakerIFTTT_Event[] = "desk_drawer_open";
