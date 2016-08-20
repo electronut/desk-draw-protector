@@ -24,7 +24,7 @@ extern "C" {
 /////////////////////
 // Pin Definitions //
 /////////////////////
-const int LED_PIN = 5; // Thing's onboard, green LED
+const int LED_PIN = 5; // Thing's onboard, green LED - LOW turns on the LED
 const int LDR_PIN = 4;
 
 /////////////////
@@ -52,8 +52,8 @@ void loop()
 #endif
 
   // LED off
-  digitalWrite(LED_PIN, LOW);
-  
+  digitalWrite(LED_PIN, HIGH);
+
   // disconnect
   wifi_station_disconnect();
   wifi_set_opmode(NULL_MODE);
@@ -112,7 +112,8 @@ void connectWiFi()
     // tasks -- wherever possible.
   }
 
-  digitalWrite(LED_PIN, HIGH);
+  // leave LED on
+  digitalWrite(LED_PIN, LOW);
 }
 
 void initHardware()
@@ -123,7 +124,9 @@ void initHardware()
 #endif
 
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
+  digitalWrite(LED_PIN, HIGH);
+
+  pinMode(LDR_PIN, INPUT);
 }
 
 char MakerIFTTT_Event[] = "desk_drawer_open";
