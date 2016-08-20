@@ -2,6 +2,11 @@
 // Arduino WiFi library.)
 #include <ESP8266WiFi.h>
 
+extern "C" {
+#include "gpio.h"
+#include "user_interface.h"
+}
+
 /*
   mysettings.h
 
@@ -14,12 +19,15 @@
 */
 #include "mysettings.h"
 
+//#define ENABLE_SERIAL_DEBUG
+
 /////////////////////
 // Pin Definitions //
 /////////////////////
 const int LED_PIN = 5; // Thing's onboard, green LED
 const int ANALOG_PIN = A0; // The only analog pin on the Thing
 const int DIGITAL_PIN = 12; // Digital pin to be read
+const int LDR_PIN = 4;
 
 /////////////////
 // Post Timing //
@@ -30,19 +38,47 @@ unsigned long lastPost = 0;
 void setup()
 {
   initHardware();
-  connectWiFi();
-  digitalWrite(LED_PIN, HIGH);
+  //connectWiFi();
 }
 
 void loop()
 {
-  if (lastPost + postRate <= millis())
-  {
-    if (postToIFTTT())
-      lastPost = millis();
-    else
-      delay(100);
-  }
+  // as soon as you enter the loop, go to sleep
+  // set up so that you wake up on a pin change interrupt
+#ifdef ENABLE_SERIAL_DEBUG
+  Serial.println("going to light sleep...");
+#endif
+
+#ifdef ENABLE_SERIAL_DEBUG
+  Serial.println("woke up...");
+#endif
+
+  // disconnect
+  wifi_station_disconnect();
+  wifi_set_opmode(NULL_MODE);
+
+  // go to light sleep
+  wifi_fpm_set_sleep_type(LIGHT_SLEEP_T);
+  wifi_fpm_open();
+  gpio_pin_wakeup_enable(GPIO_ID_PIN(LDR_PIN), GPIO_PIN_INTR_LOLEVEL);
+  wifi_fpm_do_sleep(0xFFFFFFF);
+
+  // woken up by unterrupt...
+  delay(200);
+  // disable interrupt
+  gpio_pin_wakeup_disable();
+
+  // connect to WiFi
+  delay(200);
+  connectWiFi();
+  delay(200);
+
+  // this yield is critical
+  yield();
+
+  // post to IFTTT
+  postToIFTTT();
+
 }
 
 void connectWiFi()
@@ -65,6 +101,7 @@ void connectWiFi()
     digitalWrite(LED_PIN, ledStatus); // Write LED high/low
     ledStatus = (ledStatus == HIGH) ? LOW : HIGH;
 
+    yield();
     // Delays allow the ESP8266 to perform critical tasks
     // defined outside of the sketch. These tasks include
     // setting up, and maintaining, a WiFi connection.
@@ -73,16 +110,20 @@ void connectWiFi()
     // Add delays -- allowing the processor to perform other
     // tasks -- wherever possible.
   }
+
+  digitalWrite(LED_PIN, HIGH);
 }
 
 void initHardware()
 {
+
+#ifdef ENABLE_SERIAL_DEBUG
   Serial.begin(9600);
+#endif
+
   pinMode(DIGITAL_PIN, INPUT_PULLUP);
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
-  // Don't need to set ANALOG_PIN as input,
-  // that's all it can be.
 }
 
 char MakerIFTTT_Event[] = "desk_drawer_open";
@@ -98,7 +139,10 @@ char *append_str(char *here, char *s) {
 
 int postToIFTTT()
 {
+
+#ifdef ENABLE_SERIAL_DEBUG
   Serial.println("Posting...");
+#endif
 
   // LED turns on when we enter, it'll go off when we
   // successfully post.
@@ -112,14 +156,6 @@ int postToIFTTT()
     // If we fail to connect, return 0.
     return 0;
   }
-
-#if 0
-  //Serial.println("connected!");
-  client.println("GET /trigger/desk_drawer_open/with?key=6zmfaOBei1DgdmlOgOi6C HTTP/1.0");
-  //client.println("GET /search?q=arduino HTTP/1.0");
-  client.println();
-#endif
-
 
 // construct the POST request
     char post_rqst[256];    // hand-calculated to be big enough
@@ -143,28 +179,11 @@ int postToIFTTT()
     // end of headers
     p = append_str(p, "\r\n");
 
-#if 0
 
-    // construct the JSON; remember where we started so we will know len
-    char *json_start = p;
-
-    // As described - this example reports a pin, uptime, and "hello world"
-    p = append_str(p, "{\"value1\":\"");
-    p = append_ul(p, analogRead(READ_THIS_PIN));
-    p = append_str(p, "\",\"value2\":\"");
-    p = append_ul(p, millis());
-    p = append_str(p, "\",\"value3\":\"");
-    p = append_str(p, "hello, world!");
-    p = append_str(p, "\"}");
-
-    // go back and fill in the JSON length
-    // we just know this is at most 2 digits (and need to fill in both)
-    int i = strlen(json_start);
-    content_length_here[0] = '0' + (i/10);
-    content_length_here[1] = '0' + (i%10);
+#ifdef ENABLE_SERIAL_DEBUG
+    Serial.print(post_rqst);
 #endif
 
-    Serial.print(post_rqst);
     // finally we are ready to send the POST to the server!
     client.print(post_rqst);
     client.stop();
@@ -172,7 +191,11 @@ int postToIFTTT()
   // Read all the lines of the reply from server and print them to Serial
   while(client.available()){
     String line = client.readStringUntil('\r');
+
+#ifdef ENABLE_SERIAL_DEBUG
     Serial.print(line); // Trying to avoid using serial
+#endif
+
   }
 
   // Before we exit, turn the LED off.
