@@ -25,8 +25,6 @@ extern "C" {
 // Pin Definitions //
 /////////////////////
 const int LED_PIN = 5; // Thing's onboard, green LED
-const int ANALOG_PIN = A0; // The only analog pin on the Thing
-const int DIGITAL_PIN = 12; // Digital pin to be read
 const int LDR_PIN = 4;
 
 /////////////////
@@ -53,6 +51,9 @@ void loop()
   Serial.println("woke up...");
 #endif
 
+  // LED off
+  digitalWrite(LED_PIN, LOW);
+  
   // disconnect
   wifi_station_disconnect();
   wifi_set_opmode(NULL_MODE);
@@ -121,7 +122,6 @@ void initHardware()
   Serial.begin(9600);
 #endif
 
-  pinMode(DIGITAL_PIN, INPUT_PULLUP);
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
 }
