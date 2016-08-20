@@ -18,3 +18,7 @@ http://esp8266.github.io/Arduino/versions/2.3.0/doc/installing.html
 Look at:
 
 https://github.com/chaeplin/esp8266_and_arduino/tree/master/_48-door-alarm-deepsleep
+
+LDR:
+
+http://www.petervis.com/GCSE_Design_and_Technology_Electronic_Products/Transistor_as_a_Switch/Transistor_as_a_Switch_Using_LDR.html
