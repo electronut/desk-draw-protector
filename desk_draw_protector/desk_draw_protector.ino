@@ -81,9 +81,21 @@ void loop()
   // post to IFTTT
   postToIFTTT();
 
-  analogWriteFreq(400);
+  // more annoyng noises
+  makeNoise();
+}
+
+// create some havoc with the buzzer
+void makeNoise()
+{
   analogWrite(BUZZER_PIN, 128);
-  delay(3000);
+
+  for (int i = 0; i < 10; i++) {
+    analogWriteFreq(1318);
+    delay(300);
+    analogWriteFreq(1397);
+    delay(300);
+  }
   analogWrite(BUZZER_PIN, 0);
 }
 
