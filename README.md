@@ -25,3 +25,6 @@ LDR:
 
 http://www.petervis.com/GCSE_Design_and_Technology_Electronic_Products/Transistor_as_a_Switch/Transistor_as_a_Switch_Using_LDR.html
 
+http://www.learnerswings.com/2014/07/simple-circuit-to-sense-light-using.html
+
+
