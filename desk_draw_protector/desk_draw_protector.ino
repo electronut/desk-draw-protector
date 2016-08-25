@@ -19,7 +19,7 @@ extern "C" {
 */
 #include "mysettings.h"
 
-//#define ENABLE_SERIAL_DEBUG
+#define ENABLE_SERIAL_DEBUG
 
 /////////////////////
 // Pin Definitions //
@@ -41,6 +41,40 @@ void setup()
 }
 
 void loop()
+{
+  // leave LED on
+ digitalWrite(LED_PIN, LOW);
+ delay(1000);
+ // leave LED on
+ digitalWrite(LED_PIN, HIGH);
+
+  // awake here...
+  delay(1000);
+
+  // connect to WiFi
+  delay(200);
+  connectWiFi();
+  delay(200);
+
+  // this yield is critical
+  yield();
+
+  // post to IFTTT
+  postToIFTTT();
+
+  // more annoyng noises
+  makeNoise();
+  
+  // as soon as you enter the loop, go to sleep
+#ifdef ENABLE_SERIAL_DEBUG
+  Serial.println("going to sleep...");
+#endif
+
+  ESP.deepSleep(0);
+  yield();
+}
+
+void loop2()
 {
   // as soon as you enter the loop, go to sleep
   // set up so that you wake up on a pin change interrupt
@@ -90,9 +124,12 @@ void makeNoise()
 {
   analogWrite(BUZZER_PIN, 128);
 
+  // play Jaws music
   for (int i = 0; i < 10; i++) {
+    // E6
     analogWriteFreq(1318);
     delay(300);
+    // F6
     analogWriteFreq(1397);
     delay(300);
   }
