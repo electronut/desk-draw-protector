@@ -1,30 +1,12 @@
-No touchy...
+## Objective
 
+Protect my immaculate desk draw contents from invading marauders using
+an ESP8266 and IFTTT.
 
-- create maker channel
+## Schematic
 
-https://ifttt.com/maker
+![schematic](schematic.png)
 
-- download IF app
+## Converting LDR pulse to reset signal
 
-https://ifttt.com/products
-
-- test
-- install esp8266 add on in Arduino
-
-http://esp8266.github.io/Arduino/versions/2.3.0/doc/installing.html
-
-
-Look at:
-
-https://github.com/chaeplin/esp8266_and_arduino/tree/master/_48-door-alarm-deepsleep
-
-https://github.com/esp8266/Arduino/issues/1488
-
-LDR:
-
-http://www.petervis.com/GCSE_Design_and_Technology_Electronic_Products/Transistor_as_a_Switch/Transistor_as_a_Switch_Using_LDR.html
-
-http://www.learnerswings.com/2014/07/simple-circuit-to-sense-light-using.html
-
-
+![signals](signals.png)
