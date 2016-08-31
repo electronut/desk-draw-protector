@@ -19,25 +19,49 @@ extern "C" {
 */
 #include "mysettings.h"
 
-#define ENABLE_SERIAL_DEBUG
+// enable this for debugging
+// #define ENABLE_SERIAL_DEBUG
 
-/////////////////////
-// Pin Definitions //
-/////////////////////
+// pins
 const int LED_PIN = 5; // Thing's onboard, green LED - LOW turns on the LED
 const int LDR_PIN = 12;
 const int BUZZER_PIN = 14;
 
-/////////////////
-// Post Timing //
-/////////////////
-const unsigned long postRate = 5000;
-unsigned long lastPost = 0;
+// IFTTT event name
+char MakerIFTTT_Event[] = "desk_drawer_open";
+
+// POST string
+String postReqStr;
+
+void initHardware()
+{
+
+#ifdef ENABLE_SERIAL_DEBUG
+  Serial.begin(9600);
+#endif
+
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH);
+
+  pinMode(LDR_PIN, INPUT);
+
+  pinMode(BUZZER_PIN, OUTPUT);
+}
 
 void setup()
 {
   initHardware();
-  //connectWiFi();
+  // prepare POST request string
+  postReqStr += "POST /trigger/";
+  postReqStr += MakerIFTTT_Event;
+  postReqStr += "/with/key/";
+  postReqStr += MakerIFTTT_Key;
+  postReqStr += " HTTP/1.1\r\n";
+  postReqStr += "Host: maker.ifttt.com\r\n";
+  postReqStr += "Content-Type: application/json\r\n";
+  postReqStr += "Content-Length:  0";
+  postReqStr += "\r\n";
+  postReqStr += "\r\n";
 }
 
 void loop()
@@ -64,7 +88,7 @@ void loop()
   // post to IFTTT
   postToIFTTT();
 
-  // as soon as you enter the loop, go to sleep
+  // go to deep sleep
 #ifdef ENABLE_SERIAL_DEBUG
   Serial.println("going to sleep...");
 #endif
@@ -127,32 +151,6 @@ void connectWiFi()
   digitalWrite(LED_PIN, LOW);
 }
 
-void initHardware()
-{
-
-#ifdef ENABLE_SERIAL_DEBUG
-  Serial.begin(9600);
-#endif
-
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, HIGH);
-
-  pinMode(LDR_PIN, INPUT);
-
-  pinMode(BUZZER_PIN, OUTPUT);
-}
-
-char MakerIFTTT_Event[] = "desk_drawer_open";
-
-// helper functions for constructing the POST data
-// append a string or int to a buffer, return the resulting end of string
-
-char *append_str(char *here, char *s) {
-    while (*here++ = *s++)
-	;
-    return here-1;
-}
-
 int postToIFTTT()
 {
 
@@ -173,35 +171,12 @@ int postToIFTTT()
     return 0;
   }
 
-// construct the POST request
-    char post_rqst[256];    // hand-calculated to be big enough
-
-    char *p = post_rqst;
-    p = append_str(p, "POST /trigger/");
-    p = append_str(p, MakerIFTTT_Event);
-    p = append_str(p, "/with/key/");
-    p = append_str(p, MakerIFTTT_Key);
-    p = append_str(p, " HTTP/1.1\r\n");
-    p = append_str(p, "Host: maker.ifttt.com\r\n");
-    p = append_str(p, "Content-Type: application/json\r\n");
-    p = append_str(p, "Content-Length: 0");
-
-    // we need to remember where the content length will go, which is:
-    char *content_length_here = p;
-
-    // it's always two digits, so reserve space for them (the NN)
-    p = append_str(p, "\r\n");
-
-    // end of headers
-    p = append_str(p, "\r\n");
-
-
 #ifdef ENABLE_SERIAL_DEBUG
-    Serial.print(post_rqst);
+    Serial.print(postReqStr);
 #endif
 
     // finally we are ready to send the POST to the server!
-    client.print(post_rqst);
+    client.print(postReqStr);
     client.stop();
 
   // Read all the lines of the reply from server and print them to Serial
