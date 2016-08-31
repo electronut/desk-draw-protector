@@ -43,13 +43,15 @@ void setup()
 void loop()
 {
   // leave LED on
- digitalWrite(LED_PIN, LOW);
- delay(1000);
- // leave LED on
- digitalWrite(LED_PIN, HIGH);
+  digitalWrite(LED_PIN, LOW);
+  delay(1000);
+  // leave LED on
+  digitalWrite(LED_PIN, HIGH);
 
   // awake here...
-  delay(1000);
+
+  // more annoying noises
+  makeNoise();
 
   // connect to WiFi
   delay(200);
@@ -62,9 +64,6 @@ void loop()
   // post to IFTTT
   postToIFTTT();
 
-  // more annoyng noises
-  makeNoise();
-  
   // as soon as you enter the loop, go to sleep
 #ifdef ENABLE_SERIAL_DEBUG
   Serial.println("going to sleep...");
@@ -104,6 +103,9 @@ void loop2()
   // disable interrupt
   gpio_pin_wakeup_disable();
 
+  // more annoyng noises
+  makeNoise();
+
   // connect to WiFi
   delay(200);
   connectWiFi();
@@ -114,9 +116,6 @@ void loop2()
 
   // post to IFTTT
   postToIFTTT();
-
-  // more annoyng noises
-  makeNoise();
 }
 
 // create some havoc with the buzzer
@@ -150,7 +149,10 @@ void connectWiFi()
 
   // Use the WiFi.status() function to check if the ESP8266
   // is connected to a WiFi network.
-  while (WiFi.status() != WL_CONNECTED)
+  // make N attempts
+  int NA = 10;
+  int attempts = 0;
+  while ((WiFi.status() != WL_CONNECTED) && attempts++ < NA)
   {
     // Blink the LED
     digitalWrite(LED_PIN, ledStatus); // Write LED high/low
