@@ -73,51 +73,6 @@ void loop()
   yield();
 }
 
-void loop2()
-{
-  // as soon as you enter the loop, go to sleep
-  // set up so that you wake up on a pin change interrupt
-#ifdef ENABLE_SERIAL_DEBUG
-  Serial.println("going to light sleep...");
-#endif
-
-#ifdef ENABLE_SERIAL_DEBUG
-  Serial.println("woke up...");
-#endif
-
-  // LED off
-  digitalWrite(LED_PIN, HIGH);
-
-  // disconnect
-  wifi_station_disconnect();
-  wifi_set_opmode(NULL_MODE);
-
-  // go to light sleep
-  wifi_fpm_set_sleep_type(LIGHT_SLEEP_T);
-  wifi_fpm_open();
-  gpio_pin_wakeup_enable(GPIO_ID_PIN(LDR_PIN), GPIO_PIN_INTR_LOLEVEL);
-  wifi_fpm_do_sleep(0xFFFFFFF);
-
-  // woken up by unterrupt...
-  delay(200);
-  // disable interrupt
-  gpio_pin_wakeup_disable();
-
-  // more annoyng noises
-  makeNoise();
-
-  // connect to WiFi
-  delay(200);
-  connectWiFi();
-  delay(200);
-
-  // this yield is critical
-  yield();
-
-  // post to IFTTT
-  postToIFTTT();
-}
-
 // create some havoc with the buzzer
 void makeNoise()
 {
