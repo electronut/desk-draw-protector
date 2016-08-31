@@ -1,3 +1,5 @@
+![ddp](ddp.png)
+
 ## Objective
 
 Protect my immaculate desk draw contents from invading marauders using
