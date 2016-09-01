@@ -24,7 +24,6 @@ extern "C" {
 
 // pins
 const int LED_PIN = 5; // Thing's onboard, green LED - LOW turns on the LED
-const int LDR_PIN = 12;
 const int BUZZER_PIN = 14;
 
 // IFTTT event name
@@ -42,8 +41,6 @@ void initHardware()
 
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
-
-  pinMode(LDR_PIN, INPUT);
 
   pinMode(BUZZER_PIN, OUTPUT);
 }
