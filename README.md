@@ -1,4 +1,4 @@
-![ddp](ddp.png)
+![ddp](ddp-open.jpg)
 
 ## Objective
 
